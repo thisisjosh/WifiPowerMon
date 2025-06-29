@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import subprocess
 import time
 import datetime
@@ -13,7 +15,7 @@ FIRST_SCAN_DONE = False  # Flag to check if the first scan has been completed
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def load_config(config_file='config.json'):
+def load_config(config_file='/home/josh/WifiPowerMon/config.json'):
     """Loads configuration from a JSON file."""
     try:
         with open(config_file, 'r') as f:
@@ -50,7 +52,7 @@ def send_ntfy_notification(message, topic, simulate=False):
         return
     try:
         subprocess.run(
-            ["curl", "-d", message, f"https://ntfy.sh/{topic}"],
+            ["/usr/bin/curl", "-d", message, f"https://ntfy.sh/{topic}"],
             check=True,
             capture_output=True,
             text=True

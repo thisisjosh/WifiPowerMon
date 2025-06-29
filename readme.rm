@@ -1,0 +1,9 @@
+# Install
+sudo ./install.sh
+
+# Connect
+screen -ls
+screen -r pyscreen
+
+# Restart service
+sudo systemctl restart pyscreen.service

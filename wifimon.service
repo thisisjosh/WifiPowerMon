@@ -1,0 +1,27 @@
+# Save to /etc/systemd/system/wifimon.service
+# sudo cp wifimon.service /etc/systemd/system/wifimon.service
+
+[Unit]
+Description=My WiFi Monitor Script running in Screen
+# This ensures the service starts after the network is available.
+# Remove this line if your script doesn't need an internet connection.
+After=network.target
+
+[Service]
+Type=forking
+# This is crucial: run the service as the user 'josh'
+User=josh
+# Set the working directory to the user's home directory
+WorkingDirectory=/home/josh
+# The command to execute.
+# screen -dmS [session_name] [command_to_run]
+# -d -m: Starts screen in a detached mode.
+# -S wifimon: Names the session "wifimon".
+ExecStart=/usr/bin/screen -dmS wifimon /home/josh/WifiPowerMon/wifi_monitor.py
+# If the script fails, add to the ExecStart: -L -Logfile /home/josh/wifi_monitor.log
+
+# Optional: If you want to define a command to stop your script gracefully
+# ExecStop=/path/to/your/stop/script.sh
+
+[Install]
+WantedBy=multi-user.target
