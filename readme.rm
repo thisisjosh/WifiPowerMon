@@ -3,7 +3,7 @@ sudo ./install.sh
 
 # Connect
 screen -ls
-screen -r pyscreen
+screen -r wifimon
 
 # Restart service
-sudo systemctl restart pyscreen.service
+sudo systemctl restart wifimon.service

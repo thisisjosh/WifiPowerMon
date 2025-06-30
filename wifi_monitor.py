@@ -45,22 +45,31 @@ def format_duration(seconds):
     minutes, seconds = divmod(remainder, 60)
     return f"{int(hours)}h {int(minutes)}m {int(seconds)}s"
 
-def send_ntfy_notification(message, topic, simulate=False):
-    """Sends a notification to ntfy.sh using curl."""
+def send_ntfy_notification(message, topic, simulate=False, retries=3, backoff=2):
+    """Sends a notification to ntfy.sh using curl, with retry and exponential backoff."""
     logging.info(f"🔔{topic} {message}")
     if simulate and len(topic) == 0:
         return
-    try:
-        subprocess.run(
-            ["/usr/bin/curl", "-d", message, f"https://ntfy.sh/{topic}"],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Error sending ntfy notification with curl: {e}")
-    except Exception as e:
-        logging.error(f"An unexpected error occurred: {e}")
+    attempt = 0
+    while attempt <= retries:
+        try:
+            subprocess.run(
+                ["/usr/bin/curl", "-d", message, f"https://ntfy.sh/{topic}"],
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            return  # Success, exit the function
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Error sending ntfy notification with curl (attempt {attempt+1}/{retries+1}): {e}")
+        except Exception as e:
+            logging.error(f"An unexpected error occurred (attempt {attempt+1}/{retries+1}): {e}")
+        if attempt < retries:
+            sleep_time = backoff * (2 ** attempt)
+            logging.info(f"Retrying in {sleep_time} seconds...")
+            time.sleep(sleep_time)
+        attempt += 1
+    logging.error(f"Failed to send ntfy notification after {retries+1} attempts.")
 
 
 def simulate_nmcli_output(target_ssids):
@@ -189,9 +198,11 @@ def main():
                         time_offline = (current_time - target_offline_times[target_ssid]).total_seconds()
                     else:
                         time_offline = 0
-                    time_offline_message = format_duration(time_offline)
-                    message = f"📡 {target_ssid} is back after {time_offline_message} of downtime"
-                    send_ntfy_notification(message, NTFY_TOPIC, simulate)
+                    # Only send notification if offline duration meets or exceeds threshold
+                    if time_offline >= OFFLINE_THRESHOLD:
+                        time_offline_message = format_duration(time_offline)
+                        message = f"📡 {target_ssid} is back after {time_offline_message} of downtime"
+                        send_ntfy_notification(message, NTFY_TOPIC, simulate)
                     target_states[target_ssid] = "online"
         FIRST_SCAN_DONE = True
         logging.debug(f"Target States: {target_states}")
