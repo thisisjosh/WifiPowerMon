@@ -18,7 +18,7 @@ WorkingDirectory=/home/josh
 # -d -m: Starts screen in a detached mode.
 # -S wifimon: Names the session "wifimon".
 ExecStart=/usr/bin/screen -dmS wifimon /home/josh/WifiPowerMon/wifi_monitor.py
-# If the script fails, add to the ExecStart: -L -Logfile /home/josh/wifi_monitor.log
+# If the script fails, add to the ExecStart: -L -Logfile /home/josh/wifi_monitor.logsss
 
 # Optional: If you want to define a command to stop your script gracefully
 # ExecStop=/path/to/your/stop/script.sh

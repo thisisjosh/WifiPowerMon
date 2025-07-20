@@ -6,6 +6,7 @@ import datetime
 import argparse
 import logging
 import json
+import os
 
 SIMULATION_START_TIME = None
 SIMULATION_ENDED = False
@@ -15,8 +16,10 @@ FIRST_SCAN_DONE = False  # Flag to check if the first scan has been completed
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def load_config(config_file='/home/josh/WifiPowerMon/config.json'):
+def load_config(config_file=None):
     """Loads configuration from a JSON file."""
+    if config_file is None:
+        config_file = os.path.join(os.path.expanduser("~"), "WifiPowerMon", "config.json")
     try:
         with open(config_file, 'r') as f:
             return json.load(f)
@@ -198,8 +201,8 @@ def main():
                         time_offline = (current_time - target_offline_times[target_ssid]).total_seconds()
                     else:
                         time_offline = 0
-                    # Only send notification if offline duration meets or exceeds threshold
-                    if time_offline >= OFFLINE_THRESHOLD:
+
+                    if time_offline > 0:
                         time_offline_message = format_duration(time_offline)
                         message = f"📡 {target_ssid} is back after {time_offline_message} of downtime"
                         send_ntfy_notification(message, NTFY_TOPIC, simulate)
