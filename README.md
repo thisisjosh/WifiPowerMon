@@ -19,6 +19,9 @@ This script is designed to run on a small, Linux-based single-board computer (li
 ## Installation
 
 1.  **Clone this repository.**
+    ```bash
+    git clone https://github.com/thisisjosh/WifiPowerMon
+    ```
 
 2.  **Configure the monitor:**
     Edit the configuration file to specify which WiFi networks to monitor and your `ntfy` topic.
