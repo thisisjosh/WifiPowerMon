@@ -192,6 +192,12 @@ def main():
                         send_ntfy_notification(message, NTFY_TOPIC, simulate)
                         target_states[target_ssid] = "offline"
                         target_offline_times[target_ssid] = current_time
+                else:  # Target has never been seen
+                    if FIRST_SCAN_DONE and target_states.get(target_ssid) != "offline":
+                        message = f"📴 {target_ssid} is offline (not found at startup)"
+                        send_ntfy_notification(message, NTFY_TOPIC, simulate)
+                        target_states[target_ssid] = "offline"
+                        target_offline_times[target_ssid] = current_time
             else:  # target is in current scan
                 if not FIRST_SCAN_DONE:  # Do not send notifications during the first scan.
                     if target_ssid not in target_states:
